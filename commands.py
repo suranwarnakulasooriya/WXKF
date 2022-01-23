@@ -21,6 +21,14 @@ def exit():
     with open('students.txt','w') as f:
         for s in S:
             f.write(f"{s.name} {s.age} {s.rank} {s.nexttest} {s.alias} {s.id}\n")
+    f.close()
+    with open('attendance.txt','w') as f:
+        for day in days:
+            if day[:8] == months[monthI][todayI][:8]:
+                day = months[monthI][todayI]
+                #print(months[monthI][todayI])
+            f.write(day+'\n')
+    f.close()
     sys.exit("Exited.")
 
 def alias(student, alias):
@@ -87,12 +95,51 @@ def man():
     for c in C:
         print(f"↪ {c.name}\n{c.func.__doc__}\n")
 
-def attendance():
-    '''Show the attendance list for today.'''
+def attendance(timeframe):
+    '''Show the attendance list. Use: <timeframe> where timeframe is 'today' or 'month'.'''
+    if timeframe not in ['today','month']:
+        print(f"ERROR: '{timeframe}' is not a valid timeframe. Valid timeframes are 'today' and 'month'.")
+        return 0
+    elif timeframe == 'today':
+        t = months[monthI][todayI]
+        print(today)
+        t = t.split()
+        t.pop(0)
+        appearances = {} # {name: num of appearances}
+        for s in t:
+            for p in S:
+                if p.id == s:
+                    if p.name not in appearances:
+                        appearances[p.name] = t.count(p.id)
+        for student in appearances:
+            print(f"  ↪ {student} x{appearances[student]}")
 
+    elif timeframe == 'month':
+        month = months[monthI]
+        for i in range(len(month)):
+            t = months[monthI][i]
+            print(t[:8])
+            t = t.split()
+            t.pop(0)
+            appearances = {} # {name: num of appearances}
+            for s in t:
+                for p in S:
+                    if p.id == s:
+                        if p.name not in appearances:
+                            appearances[p.name] = t.count(p.id)
+            for student in appearances:
+                print(f"  ↪ {student} x{appearances[student]}")
+
+def attend(student):
+    '''Attend a student once for today.\nUse: <student>.'''
+    if not validStudent(student): return 0
+    i = validStudent(student)[0]
+
+    months[monthI][todayI] += ' ' + S[i].id
+    print(f"{S[i].name} was attended for today.")
 
 C = [Command(man,0,'man'), Command(exit,0,'exit'), Command(students,0,'students'),
-    Command(attend,1,'attend'), Command(info,1,'info'),
+    Command(attend,1,'attend'), Command(info,1,'info'), Command(attendance,1,'attendance'), Command(attend,1,'attend'),
     Command(alias,2,'alias'),
     Command(modstudent,3,'modstudent'),
     Command(addstudent,4,'addstudent')
