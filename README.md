@@ -10,3 +10,7 @@ pip install random
 pip install pandas # this should be the only dependency not automatically installed with Python
 ```
 Then, clone this repository.
+```
+git clone --branch production https://github.com/suranwarnakulasooriya/WXKF
+```
+You can put this in the command line if you have `git` installed or you can download from this page.
