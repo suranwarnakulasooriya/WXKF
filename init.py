@@ -41,48 +41,6 @@ class Attendance:
                 self.readable.append(f"{s.name} : {self.appearances.count(s.id)}")
                 self.export = 0
 
-class Date:
-    def __init__(self, s):
-        self.month = s[:2]
-        self.day = s[3:5]
-        self.year = s[6:8]
-        self.im = int(self.month)
-        self.id = int(self.day)
-        self.iy = int(self.year)
-        self.long = ['01','03','05','07','08','10','12']
-        self.short = ['04','06','09','11']
-        self.feb = ['02']
-
-    def __repr__(self):
-        return f"{self.month}/{self.day}/{self.year}"
-
-    def rewrite(self, month, day, year):
-        self.month = month
-        self.day = day
-        if len(self.month) == 1:
-            self.month = '0'+self.month
-        if len(self.day) == 1:
-            self.day = '0'+self.day
-        self.year = year
-        self.im = int(self.month)
-        self.id = int(self.day)
-        self.iy = int(self.year)
-
-    def increment(self):
-        if self.month in self.long and self.day == '31':
-            if self.month == '12':
-                self.rewrite('01','01',str(self.iy+1))
-            else:
-                self.rewrite(str(self.im+1),'01',self.year)
-        elif self.month in self.short and self.day == '30':
-            self.rewrite(str(self.im+1),'01',self.year)
-        elif self.month == '02': # fuck you february
-            if int('20'+self.year)%4 == 0 and self.day == '29':
-                    self.rewrite('03','01',self.year)
-            elif self.day == '28':
-                    self.rewrite('03','01',self.year)
-        else:
-            self.rewrite(self.month,str(self.id+1),self.year)
 
 # reat list of students from students.txt
 S = []
@@ -93,7 +51,7 @@ for s in students:
     S.append(Student(s.lower()))
 
 today = date.today().strftime("%m/%d/%y")
-print(today)
+print(f"Login on {today}.")
 
 with open('attendance.txt','r') as f:
     days = f.readlines()

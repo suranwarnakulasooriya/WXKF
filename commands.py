@@ -1,6 +1,6 @@
 from init import *
 
-def validStudent(student): # used to check if a requested student exists, used by multiple commands and is not its own command
+def validStudent(student,talk=True): # used to check if a requested student exists, used by multiple commands and is not its own command
     stu = 0
     for i,x in enumerate(S): # check if the student exists
         if student in [x.name,x.alias]:
@@ -25,7 +25,7 @@ def exit():
     with open('attendance.txt','w') as f:
         for day in days:
             if day[:8] == months[monthI][todayI][:8]:
-                day = months[monthI][todayI]
+                day = months[monthI][todayI] + '\n'
                 #print(months[monthI][todayI])
             f.write(day+'\n')
     f.close()
@@ -50,7 +50,7 @@ def students(L=S):
     for s in S: print(s)
 
 def modstudent(student, mode, content):
-    '''Change a student's information./nUse: <student> <mode> <content> where <mode> is the attribute [name,age,rank,nexttest] and <content> is the new value to assign.'''
+    '''Change a student's information.\nUse: <student> <mode> <content> where <mode> is the attribute [name,age,rank,nexttest] and <content> is the new value to assign.\nIt is recommended that the name be a student's full name, ie peter-parker. The nexttest attribute can be a date, ie 03/15.'''
     if not validStudent(student): return 0
     i = validStudent(student)[0]
 
@@ -76,12 +76,23 @@ def modstudent(student, mode, content):
         S[i].nexttest = content
         print(f"{S[i].nexttest}")
 
-def addstudent(student, age, rank, nexttest):
-    '''Add a student to the database.\nUse: <name> <age> <rank> <nexttest>.'''
-    if validStudent(student):
-        print(f"ERROR: A student with the name {student} already exists.")
-        return 0
-    S.append(Student([student,age,rank,nexttest],True))
+def addstudent(student, age, rank):
+    '''Add a student to the database.\nUse: <name> <age> <rank>. nexttest defaults to 'TBD' and the alias defaults to the given name.'''
+    for i,x in enumerate(S): # check if the student exists
+        if student in [x.name,x.alias]:
+            print(f"ERROR: '{student}' already exists. There cannot be duplicate names.")
+            return 0
+    S.append(Student(f"{student} {age} {rank} TBD",True))
+    print(f"{S[-1]} was added to the database.")
+
+def removestudent(student):
+    '''Permanently remove a student from the database.'''
+    if not validStudent(student): return 0
+    i = validStudent(student)[0]
+    confirm = str(input(f"Do you want to PERMANENTLY REMOVE:\n{S[i]}\nType 'yes' to confirm. > "))
+    if confirm == 'yes':
+        print(f"{S[i].name} was removed from the database.")
+        S.pop(i)
 
 
 def info(student):
@@ -138,11 +149,11 @@ def attend(student):
     months[monthI][todayI] += ' ' + S[i].id
     print(f"{S[i].name} was attended for today.")
 
+# list of recognized commands
 C = [Command(man,0,'man'), Command(exit,0,'exit'), Command(students,0,'students'),
-    Command(attend,1,'attend'), Command(info,1,'info'), Command(attendance,1,'attendance'), Command(attend,1,'attend'),
+    Command(attend,1,'attend'), Command(info,1,'info'), Command(attendance,1,'attendance'), Command(attend,1,'attend'), Command(removestudent,1,'rmstudent'),
     Command(alias,2,'alias'),
-    Command(modstudent,3,'modstudent'),
-    Command(addstudent,4,'addstudent')
+    Command(modstudent,3,'modstudent'), Command(addstudent,3,'addstudent')
 
 
     ]

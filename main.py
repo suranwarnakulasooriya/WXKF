@@ -31,3 +31,6 @@ while True: # main event loop
                     c.func(st[0],st[1])
                 elif c.xargs == 3:
                     c.func(st[0],st[1],st[2])
+                elif c.xargs == 4:
+                    c.func(st[0],st[1],st[2],st[3])
+    print()
