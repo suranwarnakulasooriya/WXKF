@@ -1,5 +1,5 @@
 # WXKF
-A (for now terminal based) program to track student attendance. Written for a (I guess) private entity.
+A (for now terminal based) program to track student attendance. Written for a private entity.
 
 ## Installation ##
 First make sure [Python3+](https://www.python.org/downloads/windows/) is installed, then install the following dependencies.
