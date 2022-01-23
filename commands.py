@@ -17,7 +17,10 @@ def attend(student):
     pass
 
 def exit():
-    '''Close the program.'''
+    '''Save changes and close the program.'''
+    with open('students.txt','w') as f:
+        for s in S:
+            f.write(f"{s.name} {s.age} {s.rank} {s.nexttest} {s.alias} {s.id}\n")
     sys.exit("Exited.")
 
 def alias(student, alias):
@@ -49,19 +52,19 @@ def modstudent(student, mode, content):
         return 0
 
     if mode == 'name':
-        print(f"{S[i].name} : {S[i].name} -> ",end='')
+        print(f"{S[i].name} (name): {S[i].name} -> ",end='')
         S[i].name = content
         print(f"{S[i].name}")
     elif mode == 'age':
-        print(f"{S[i].name} : {S[i].age} -> ",end='')
+        print(f"{S[i].name} (age): {S[i].age} -> ",end='')
         S[i].age = content
         print(f"{S[i].age}")
     elif mode == 'rank':
-        print(f"{S[i].name} : {S[i].rank} -> ",end='')
+        print(f"{S[i].name} (rank): {S[i].rank} -> ",end='')
         S[i].rank = content
         print(f"{S[i].rank}")
     elif mode == 'nexttest':
-        print(f"{S[i].name} : {S[i].nexttest} -> ",end='')
+        print(f"{S[i].name} (alias): {S[i].nexttest} -> ",end='')
         S[i].nexttest = content
         print(f"{S[i].nexttest}")
 

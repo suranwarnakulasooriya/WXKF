@@ -1,10 +1,10 @@
-import sys
-import time
+
 from init import *
 from commands import *
 
+print("Welcome to whatever you want to call this program. See the manual by typing 'man'. Leave using 'exit', changes will not be saved if you force quit this program.")
 
-while True:
+while True: # main event loop
     raw = str(input("> "))
     if raw != '': # if enter was hit, just give the prompt again
         st = raw.split() # split input into words
