@@ -1,4 +1,1 @@
-peter-parker 18 redshirt 04/20 spiderman 1234
-bruce-wayne 25 yellowbelt 06/09 batman 4321
-tony-stark 48 redbelt 10/18 ironman 3301
-bruce-banner 27 purplebelt 08/09 hulk 0459
+
