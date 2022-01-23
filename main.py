@@ -2,7 +2,7 @@
 from init import *
 from commands import *
 
-print("Welcome to whatever you want to call this program. See the manual by typing 'man'. Leave using 'exit', changes will not be saved if you force quit this program.")
+print("Welcome to whatever you want to call this program. See the manual by typing 'man'. Use 'attendance <'today' or 'month'>' to see the attendance. Use 'export <month>' to export the attendance. Leave using 'exit', changes will not be saved if you force quit this program.")
 
 while True: # main event loop
     raw = str(input("> "))

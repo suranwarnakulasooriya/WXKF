@@ -3,6 +3,7 @@ from datetime import date
 import json
 import random
 import os
+import pandas as pd
 
 class Student:
     def __init__(self, content, new=False):
@@ -30,19 +31,8 @@ class Command:
         self.xargs = args
         self.func = func
 
-class Attendance:
-    def __init__(self, day, appearances):
-        self.day = day
-        self.appearances = appearances
-        self.readable = []
-        self.export = []
-        for s in S:
-            if s.id in self.appearances:
-                self.readable.append(f"{s.name} : {self.appearances.count(s.id)}")
-                self.export = 0
 
-
-# reat list of students from students.txt
+# read list of Student objects from students.txt
 S = []
 with open('students.txt','r') as f:
     students = f.readlines()
@@ -50,18 +40,19 @@ f.close()
 for s in students:
     S.append(Student(s.lower()))
 
-today = date.today().strftime("%m/%d/%y")
-print(f"Login on {today}.")
+today = date.today().strftime("%m/%d/%y") # get current day
 
+# read attendance list
 with open('attendance.txt','r') as f:
     days = f.readlines()
 f.close()
 while '\n' in days:
     days.remove('\n')
 
-
+# create a list of months
 um = [] # list of unique months
 um = [f"{d[:2]}/{d[6:8]}" for d in days if f"{d[:2]}/{d[6:8]}" not in um]
+sm = set(um[:])
 months = [] # list of months
 while len(um) > 0:
     months.append([])

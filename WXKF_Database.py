@@ -1,4 +1,89 @@
-from init import *
+# =================================================================================================================================================================================
+# DEPENDENCIES
+
+import sys # to close on command
+from datetime import date # to get current day
+import random # to generate random user IDs
+import pandas as pd # to export
+
+# =================================================================================================================================================================================
+
+# =================================================================================================================================================================================
+# CLASSES
+
+class Student: # hols student information
+    def __init__(self, content, new=False):
+        c = content.split()
+        self.name = c[0]
+        self.age = c[1]
+        self.rank = c[2]
+        self.nexttest = c[3]
+        if new:
+            self.alias = self.name
+            self.id = f"{random.randint(0,10)}{random.randint(0,10)}{random.randint(0,10)}{random.randint(0,10)}"
+            ids = [x.id for x in S]
+            while self.id in ids or len(str(self.id)) != 4:
+                self.id = f"{random.randint(0,10)}{random.randint(0,10)}{random.randint(0,10)}{random.randint(0,10)}"
+        else:
+            self.alias = c[4]; self.id = c[5]
+
+    def __repr__(self):
+        return f"name : {self.name} | age : {self.age} | rank : {self.rank} | next test : {self.nexttest} | alias : {self.alias}"
+
+class Command: # a struct that refers to a function, its name for the end user, and number of expected arguments
+    def __init__(self, func, args : int, name):
+        self.name = name
+        self.xargs = args
+        self.func = func
+
+# =================================================================================================================================================================================
+
+# =================================================================================================================================================================================
+# INIT
+
+# read list of Student objects from students.txt
+S = []
+with open('students.txt','r') as f:
+    students = f.readlines()
+f.close()
+for s in students:
+    S.append(Student(s.lower()))
+
+today = date.today().strftime("%m/%d/%y") # get current day
+
+# read attendance list
+with open('attendance.txt','r') as f:
+    days = f.readlines()
+f.close()
+while '\n' in days:
+    days.remove('\n')
+
+# create a list of months
+um = [] # list of unique months
+um = [f"{d[:2]}/{d[6:8]}" for d in days if f"{d[:2]}/{d[6:8]}" not in um]
+sm = set(um[:])
+months = [] # list of months
+while len(um) > 0:
+    months.append([])
+    for day in days:
+        if f"{day[:2]}/{day[6:8]}" == um[0]:
+            months[-1].append(day.replace('\n',''))
+    um.pop(0)
+
+# monthI is the index of the current month in months
+# todayI is the index of the current day in months[monthI]
+monthI = -1
+for i,day in enumerate(days):
+    if day[3:5] == '01':
+        monthI += 1
+    if day[:8] == today:
+        todayI = i
+        break
+
+# =================================================================================================================================================================================
+
+# =================================================================================================================================================================================
+# FUNCTIONS AND COMMANDS
 
 def validStudent(student,talk=True): # used to check if a requested student exists, used by multiple commands and is not its own command
     stu = 0
@@ -93,12 +178,10 @@ def removestudent(student):
         print(f"{S[i].name} was removed from the database.")
         S.pop(i)
 
-
 def info(student):
     '''Get the information of a specific student.\nArgs: <student> which is the name or alias of a student.'''
     if not validStudent(student): return 0
     print(validStudent(student)[1])
-
 
 def man():
     '''Bring up this man page.'''
@@ -155,7 +238,6 @@ def unattend(student):
     months[monthI][todayI] = ' '.join(months[monthI][todayI])
     print(f"{S[i].name} has one apearance removed from attendance.")
 
-
 def export(month):
     '''Export attendance data to an xlsx file.\nArgs: <month> which is a month of recorded data.'''
     if month not in sm:
@@ -197,3 +279,43 @@ C = [Command(man,0,'man'), Command(exit,0,'exit'), Command(students,0,'students'
     Command(modstudent,3,'modstudent'), Command(alias,2,'alias'), Command(addstudent,3,'addstudent'), Command(removestudent,1,'rmstudent'),
     Command(attend,1,'attend'), Command(unattend,1,'unattend'), Command(attendance,1,'attendance'), Command(export,1,'export')]
 cmds = [c.name for c in C]
+
+# =================================================================================================================================================================================
+
+# =================================================================================================================================================================================
+# EVENT LOOP
+
+print("Welcome to the WXKF Database™. See the manual by typing 'man'. Use 'attendance <'today' or 'month'>' to see the attendance. Use 'export <month>' to export the attendance. Leave using 'exit', changes will not be saved if you force quit this program.")
+
+while True: # main event loop
+    raw = str(input("> "))
+    if raw != '': # if enter was hit, just give the prompt again
+        st = raw.split() # split input into words
+        cm = st[0] # command name
+        c = 0 # commmand to be used, starts as 0
+        for cmd in C: # find the command
+            if cm == cmd.name:
+                c = cmd
+        if c == 0: # if it wasn't found, give error
+            print(f"ERROR: '{cm}' is not a command.")
+        else: # if the command was valid
+            st.pop(0) # remove command from words, st is now a list of arguments
+            # check for the right number of arguments
+            if len(st) < c.xargs:
+                print("ERROR: Too few arguments.")
+            elif len(st) > c.xargs:
+                print("ERROR: Too many arguments.")
+            else: # if there was a correct number of arguments, invoke the command
+                if c.xargs == 0:
+                    c.func()
+                elif c.xargs == 1:
+                    c.func(st[0])
+                elif c.xargs == 2:
+                    c.func(st[0],st[1])
+                elif c.xargs == 3:
+                    c.func(st[0],st[1],st[2])
+                elif c.xargs == 4:
+                    c.func(st[0],st[1],st[2],st[3])
+    print()
+
+# =================================================================================================================================================================================
