@@ -1,12 +1,11 @@
 import sys
 import time
-from classes import *
+from init import *
 from commands import *
 
-singles = ['exit','help','students']
 
 while True:
-    raw = str(input("$ "))
+    raw = str(input("> "))
     if raw != '': # if enter was hit, just give the prompt again
         st = raw.split() # split input into words
         cm = st[0] # command name
@@ -30,3 +29,5 @@ while True:
                     c.func(st[0])
                 elif c.xargs == 2:
                     c.func(st[0],st[1])
+                elif c.xargs == 3:
+                    c.func(st[0],st[1],st[2])
