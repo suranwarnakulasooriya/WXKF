@@ -28,7 +28,7 @@ class Student: # hols student information
             self.alias = c[4]; self.id = c[5]
 
     def __repr__(self):
-        return f"name : {self.name} | age : {self.age} | rank : {self.rank} | next test : {self.nexttest} | alias : {self.alias}"
+        return f"{self.name} | age : {self.age} | rank : {self.rank} | next test : {self.nexttest} | alias : {self.alias}"
 
 class Command: # a struct that refers to a function, its name for the end user, and number of expected arguments
     def __init__(self, func, args : int, name):
@@ -50,6 +50,7 @@ for s in students:
     S.append(Student(s.lower()))
 
 today = date.today().strftime("%m/%d/%y") # get current day
+print(today)
 
 # read attendance list
 with open('attendance.txt','r') as f:
@@ -58,27 +59,38 @@ f.close()
 while '\n' in days:
     days.remove('\n')
 
-# create a list of months
-um = [] # list of unique months
-um = [f"{d[:2]}/{d[6:8]}" for d in days if f"{d[:2]}/{d[6:8]}" not in um]
-sm = set(um[:])
+D = [d[:8] for d in days]
+
+# hard coded the months because I'm not bothering with doing it procedurally anymore
+sm = ['01/22','02/22','03/22','04/22','05/22','06/22','07/22','08/22','09/22','10/22','11/22','12/22','01/23','02/23','03/23','04/23','05/23','06/23','07/23','08/23','09/23','10/23','11/23','12/23',
+'01/24','02/24','03/24','04/24','05/24','06/24','07/24','08/24','09/24','10/24','11/24','12/24','01/25','02/25','03/25','04/25','05/25','06/25','07/25','08/25','09/25','10/25','11/25','12/25']
+
+csm = sm[:]
+
 months = [] # list of months
-while len(um) > 0:
+while len(sm) > 0:
     months.append([])
     for day in days:
-        if f"{day[:2]}/{day[6:8]}" == um[0]:
+        if f"{day[:2]}/{day[6:8]}" == sm[0]:
             months[-1].append(day.replace('\n',''))
-    um.pop(0)
+    sm.pop(0)
 
-# monthI is the index of the current month in months
-# todayI is the index of the current day in months[monthI]
-monthI = -1
-for i,day in enumerate(days):
-    if day[3:5] == '01':
-        monthI += 1
-    if day[:8] == today:
-        todayI = i
-        break
+def md(d):
+    # monthI is the index of the current month in months
+    # todayI is the index of the current day in months[monthI]
+    mI = -1
+    t = 0
+    for i,day in enumerate(days):
+        t += 1
+        if day[3:5] == '01':
+            mI += 1
+            t = 0
+        if day[:8] == today:
+            tI = t
+            return mI, tI
+            break
+
+monthI, todayI = md(today)
 
 # =================================================================================================================================================================================
 
@@ -97,11 +109,11 @@ def validStudent(student,talk=True): # used to check if a requested student exis
     return i,stu
 
 def attend(student):
-    '''Add a student to the attendance list for today.'''
+    ''' > Add a student to the attendance list for today.'''
     pass
 
 def exit():
-    '''Save changes and close the program.'''
+    ''' > Save changes and close the program.'''
     with open('students.txt','w') as f:
         for s in S:
             f.write(f"{s.name} {s.age} {s.rank} {s.nexttest} {s.alias} {s.id}\n")
@@ -110,13 +122,12 @@ def exit():
         for day in days:
             if day[:8] == months[monthI][todayI][:8]:
                 day = months[monthI][todayI] + '\n'
-                #print(months[monthI][todayI])
-            f.write(day+'\n')
+            f.write(day)
     f.close()
     sys.exit("Exited.")
 
 def alias(student, alias):
-    '''Give aliases to students so you can refer to them faster.\nArgs: <student> <alias> where <student> is the full name of the student and <alias> is the new alias.'''
+    ''' > Give aliases to students so you can refer to them faster.\n > Args: <student> <alias> where <student> is the full name of the student and <alias> is the new alias.'''
     for x in S:
         if alias == x.alias:
             print(f"ERROR: The alias '{alias}' is already used for {x.name}.")
@@ -130,11 +141,11 @@ def alias(student, alias):
     print(f"ERROR: {student} is not a student. You have to use a student's real name for this command.")
 
 def students(L=S):
-    '''Show a list of all the students.'''
+    ''' > Show a list of all the students.'''
     for s in S: print(s)
 
 def modstudent(student, mode, content):
-    '''Change a student's information.\nArgs: <student> <mode> <content> where <mode> is the attribute [name,age,rank,nexttest] and <content> is the new value to assign.\nIt is recommended that the name be a student's full name, ie peter-parker. The nexttest attribute can be a date, ie 03/15.'''
+    ''' > Change a student's information.\n > Args: <student> <mode> <content> where <mode> is the attribute [name,age,rank,nexttest] and <content> is the new value to assign.\n > It is recommended that the name be a student's full name, ie peter-parker. The nexttest attribute can be a date, ie 03/15.'''
     if not validStudent(student): return 0
     i = validStudent(student)[0]
 
@@ -161,7 +172,7 @@ def modstudent(student, mode, content):
         print(f"{S[i].nexttest}")
 
 def addstudent(student, age, rank):
-    '''Add a student to the database.\nArgs: <name> <age> <rank>. nexttest defaults to 'TBD' and the alias defaults to the given name.'''
+    ''' > Add a student to the database.\n > Args: <name> <age> <rank>. nexttest defaults to 'TBD' and the alias defaults to the given name.'''
     for i,x in enumerate(S): # check if the student exists
         if student in [x.name,x.alias]:
             print(f"ERROR: '{student}' already exists. There cannot be duplicate names.")
@@ -170,26 +181,28 @@ def addstudent(student, age, rank):
     print(f"{S[-1]} was added to the database.")
 
 def removestudent(student):
-    '''Permanently remove a student from the database.\nArgs: <student> which is the name or alias of a student.'''
+    ''' > Permanently remove a student from the database.\n > Args: <student> which is the name or alias of a student.'''
     if not validStudent(student): return 0
     i = validStudent(student)[0]
+    if len(S) == 1:
+        print("ERROR: At least one student must exist at all times."); return 0
     confirm = str(input(f"Do you want to PERMANENTLY REMOVE:\n{S[i]}\nType 'yes' to confirm. > "))
     if confirm == 'yes':
         print(f"{S[i].name} was removed from the database.")
         S.pop(i)
 
 def info(student):
-    '''Get the information of a specific student.\nArgs: <student> which is the name or alias of a student.'''
+    ''' > Get the information of a specific student.\n > Args: <student> which is the name or alias of a student.'''
     if not validStudent(student): return 0
     print(validStudent(student)[1])
 
 def man():
-    '''Bring up this man page.'''
+    ''' > Bring up this man page.'''
     for c in C:
-        print(f"↪ {c.name}\n{c.func.__doc__}\n")
+        print(f"{c.name}\n{c.func.__doc__}\n")
 
 def attendance(timeframe):
-    '''Show the attendance list.\nArgs: <timeframe> where timeframe is 'today' or 'month'.'''
+    ''' > Show the attendance list.\n > Args: <timeframe> where timeframe is 'today' or 'month'.'''
     if timeframe not in ['today','month']:
         print(f"ERROR: '{timeframe}' is not a valid timeframe. Valid timeframes are 'today' and 'month'.")
         return 0
@@ -205,7 +218,7 @@ def attendance(timeframe):
                     if p.name not in appearances:
                         appearances[p.name] = t.count(p.id)
         for student in appearances:
-            print(f"  ↪ {student} x{appearances[student]}")
+            print(f" > {student} x{appearances[student]}")
 
     elif timeframe == 'month':
         month = months[monthI]
@@ -220,17 +233,17 @@ def attendance(timeframe):
                     if p.id == s:
                         if p.name not in appearances: appearances[p.name] = t.count(p.id)
             for student in appearances:
-                print(f"  ↪ {student} x{appearances[student]}")
+                print(f" > {student} x{appearances[student]}")
 
 def attend(student):
-    '''Attend a student once for today. Count multiple appearances by running this command multiple times.\nArgs: <student> which is the name or alias of a student.'''
+    ''' > Attend a student once for today. Count multiple appearances by running this command multiple times.\n > Args: <student> which is the name or alias of a student.'''
     if not validStudent(student): return 0
     i = validStudent(student)[0]
     months[monthI][todayI] += ' ' + S[i].id
     print(f"{S[i].name} was attended for today.")
 
 def unattend(student):
-    '''Remove a student appearance from attendance.\nArgs: <student> which is the name or alias of a student.'''
+    ''' > Remove a student appearance from attendance.\n > Args: <student> which is the name or alias of a student.'''
     if not validStudent(student): return 0
     i = validStudent(student)[0]
     months[monthI][todayI] = months[monthI][todayI].split()
@@ -239,8 +252,8 @@ def unattend(student):
     print(f"{S[i].name} has one apearance removed from attendance.")
 
 def export(month):
-    '''Export attendance data to an xlsx file.\nArgs: <month> which is a month of recorded data.'''
-    if month not in sm:
+    ''' > Export attendance data to an xlsx file.\n > Args: <month> which is a month of recorded attendance given in mm/yy form.'''
+    if month not in csm:
         print(f"ERROR: '{month}' is not a valid month. Exampled of valid months are 10/21 or 05/22."); return 0
     for m in months:
         if f"{m[0][:2]}/{m[0][6:8]}" == month:
@@ -270,7 +283,7 @@ def export(month):
             try: frame[-1].append(d[i][student])
             except KeyError: frame[-1].append(0)
 
-    F = pd.DataFrame(frame,index=rows,columns=data)
+    F = pd.DataFrame(frame,index=rows,columns=[d[:8] for d in data])
     F.to_excel('attendance.xlsx')
     print(f"Attendance for the month of {month} was exported to attendance.xlsx.")
 
