@@ -5,13 +5,14 @@ import sys # to close on command
 from datetime import date # to get current day
 import random # to generate random user IDs
 import pandas as pd # to export
+import os
 
 # =================================================================================================================================================================================
 
 # =================================================================================================================================================================================
 # CLASSES
 
-class Student: # hols student information
+class Student: # holds student information
     def __init__(self, content, new=False):
         c = content.split()
         self.name = c[0]
@@ -21,9 +22,9 @@ class Student: # hols student information
         if new:
             self.alias = self.name
             self.id = f"{random.randint(0,10)}{random.randint(0,10)}{random.randint(0,10)}{random.randint(0,10)}"
-            ids = [x.id for x in S]
             while self.id in ids or len(str(self.id)) != 4:
                 self.id = f"{random.randint(0,10)}{random.randint(0,10)}{random.randint(0,10)}{random.randint(0,10)}"
+            ids.append(self.id)
         else:
             self.alias = c[4]; self.id = c[5]
 
@@ -41,9 +42,12 @@ class Command: # a struct that refers to a function, its name for the end user, 
 # =================================================================================================================================================================================
 # INIT
 
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
 # read list of Student objects from students.txt
 S = []
-with open('students.txt','r') as f:
+with open(os.path.join(__location__,'students.txt'),'r') as f:
     students = f.readlines()
 f.close()
 for s in students:
@@ -52,8 +56,13 @@ for s in students:
 today = date.today().strftime("%m/%d/%y") # get current day
 print(today)
 
+with open(os.path.join(__location__,'ids.txt'),'r') as f:
+    ids = f.readlines()
+f.close()
+
+
 # read attendance list
-with open('attendance.txt','r') as f:
+with open(os.path.join(__location__,'./attendance.txt'),'r') as f:
     days = f.readlines()
 f.close()
 while '\n' in days:
@@ -63,7 +72,8 @@ D = [d[:8] for d in days]
 
 # hard coded the months because I'm not bothering with doing it procedurally anymore
 sm = ['01/22','02/22','03/22','04/22','05/22','06/22','07/22','08/22','09/22','10/22','11/22','12/22','01/23','02/23','03/23','04/23','05/23','06/23','07/23','08/23','09/23','10/23','11/23','12/23',
-'01/24','02/24','03/24','04/24','05/24','06/24','07/24','08/24','09/24','10/24','11/24','12/24','01/25','02/25','03/25','04/25','05/25','06/25','07/25','08/25','09/25','10/25','11/25','12/25']
+'01/24','02/24','03/24','04/24','05/24','06/24','07/24','08/24','09/24','10/24','11/24','12/24','01/25','02/25','03/25','04/25','05/25','06/25','07/25','08/25','09/25','10/25','11/25','12/25','01/26',
+'02/26','03/26','04/26','05/26','06/26','07/26','08/26','09/26','10/26','11/26','12/26']
 
 csm = sm[:]
 
@@ -114,15 +124,19 @@ def attend(student):
 
 def exit():
     ''' > Save changes and close the program.'''
-    with open('students.txt','w') as f:
+    with open(os.path.join(__location__,'students.txt'),'w') as f:
         for s in S:
             f.write(f"{s.name} {s.age} {s.rank} {s.nexttest} {s.alias} {s.id}\n")
     f.close()
-    with open('attendance.txt','w') as f:
+    with open(os.path.join(__location__,'attendance.txt'),'w') as f:
         for day in days:
             if day[:8] == months[monthI][todayI][:8]:
                 day = months[monthI][todayI] + '\n'
             f.write(day)
+    f.close()
+    with open(os.path.join(__location__,'ids.txt'),'w') as f:
+        for i in ids:
+            f.write(str(i)+'\n')
     f.close()
     sys.exit("Exited.")
 
@@ -247,7 +261,8 @@ def unattend(student):
     if not validStudent(student): return 0
     i = validStudent(student)[0]
     months[monthI][todayI] = months[monthI][todayI].split()
-    months[monthI][todayI].remove(S[i].id)
+    if S[i].id in months[monthI][todayI]:
+        months[monthI][todayI].remove(S[i].id)
     months[monthI][todayI] = ' '.join(months[monthI][todayI])
     print(f"{S[i].name} has one apearance removed from attendance.")
 
@@ -284,7 +299,7 @@ def export(month):
             except KeyError: frame[-1].append(0)
 
     F = pd.DataFrame(frame,index=rows,columns=[d[:8] for d in data])
-    F.to_excel('attendance.xlsx')
+    F.to_excel(os.path.join(__location__,'attendance.xlsx'))
     print(f"Attendance for the month of {month} was exported to attendance.xlsx.")
 
 # list of recognized commands
